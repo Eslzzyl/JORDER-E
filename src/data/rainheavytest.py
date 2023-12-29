@@ -1,6 +1,7 @@
 import os
 from data import srdata
 
+
 class RainHeavyTest(srdata.SRData):
     def __init__(self, args, name='RainHeavyTest', train=True, benchmark=False):
         super(RainHeavyTest, self).__init__(
@@ -20,4 +21,3 @@ class RainHeavyTest(srdata.SRData):
         print(self.apath)
         self.dir_hr = os.path.join(self.apath, 'norain')
         self.dir_lr = os.path.join(self.apath, 'rain')
-

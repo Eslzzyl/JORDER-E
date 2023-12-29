@@ -1,4 +1,5 @@
 import argparse
+
 import template
 
 parser = argparse.ArgumentParser(description='EDSR and MDSR')
@@ -23,9 +24,9 @@ parser.add_argument('--dir_data', type=str, default='../../../dataset',
                     help='dataset directory')
 parser.add_argument('--dir_demo', type=str, default='../test',
                     help='demo image directory')
-parser.add_argument('--data_train', type=str, default='RainHeavy', #'DIV2K',
+parser.add_argument('--data_train', type=str, default='RainHeavy',  # 'DIV2K',
                     help='train dataset name')
-parser.add_argument('--data_test', type=str, default= 'RainHeavyTest', #'DIV2K',
+parser.add_argument('--data_test', type=str, default='RainHeavyTest',  # 'DIV2K',
                     help='test dataset name')
 parser.add_argument('--data_range', type=str, default='1-1800/1700-1800',
                     help='train/test data range')
@@ -156,4 +157,3 @@ for arg in vars(args):
         vars(args)[arg] = True
     elif vars(args)[arg] == 'False':
         vars(args)[arg] = False
-

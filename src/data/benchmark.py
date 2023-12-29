@@ -1,12 +1,6 @@
 import os
-
-from data import common
 from data import srdata
 
-import numpy as np
-
-import torch
-import torch.utils.data as data
 
 class Benchmark(srdata.SRData):
     def __init__(self, args, name='', train=True, benchmark=True):
@@ -19,4 +13,3 @@ class Benchmark(srdata.SRData):
         self.dir_hr = os.path.join(self.apath, 'HR')
         self.dir_lr = os.path.join(self.apath, 'LR_bicubic')
         self.ext = ('', '.png')
-

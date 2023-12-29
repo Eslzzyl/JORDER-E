@@ -2,7 +2,6 @@ import os
 import math
 import time
 import datetime
-from functools import reduce
 
 import matplotlib
 matplotlib.use('Agg')
