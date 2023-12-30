@@ -1,16 +1,20 @@
-import random
+# This file was gained from https://github.com/hongwang01/RCDNet/blob/master/pytorch1.0%2B/for_syn/src/dataloader.py
+
 import sys
 import threading
+import queue
+import random
 
 import torch
 import torch.multiprocessing as multiprocessing
-from torch._C import _set_worker_signal_handlers, _update_worker_pids
+
+from torch._C import _set_worker_signal_handlers
+from torch.utils.data import _utils
 from torch.utils.data.dataloader import DataLoader
-from torch.utils.data.dataloader import ExceptionWrapper
-from torch.utils.data.dataloader import _DataLoaderIter
-from torch.utils.data.dataloader import _set_SIGCHLD_handler
-from torch.utils.data.dataloader import _worker_manager_loop
-from torch.utils.data.dataloader import default_collate
+# from torch.utils.data.dataloader import _DataLoaderIter
+from private import _DataLoaderIter
+
+_use_shared_memory = False
 
 if sys.version_info[0] == 2:
     import Queue as queue
@@ -40,7 +44,7 @@ def _ms_loop(dataset, index_queue, data_queue, collate_fn, scale, seed, init_fn,
             samples.append(idx_scale)
 
         except Exception:
-            data_queue.put((idx, ExceptionWrapper(sys.exc_info())))
+            data_queue.put((idx, _utils.ExceptionWrapper(sys.exc_info())))
         else:
             data_queue.put((idx, samples))
 
@@ -64,7 +68,9 @@ class _MSDataLoaderIter(_DataLoaderIter):
                 multiprocessing.Queue() for _ in range(self.num_workers)
             ]
             self.worker_queue_idx = 0
-            self.worker_result_queue = multiprocessing.SimpleQueue()
+          #  self.worker_result_queue = multiprocessing.SimpleQueue()
+            self.worker_result_queue = multiprocessing.Queue()
+
             self.batches_outstanding = 0
             self.worker_pids_set = False
             self.shutdown = False
@@ -96,12 +102,13 @@ class _MSDataLoaderIter(_DataLoaderIter):
                 else:
                     # do not initialize cuda context if not necessary
                     maybe_device_id = None
-                self.worker_manager_thread = threading.Thread(
-                    target=_worker_manager_loop,
+                self.pin_memory_thread = threading.Thread(
+                    target=_utils.pin_memory._pin_memory_loop,
                     args=(self.worker_result_queue, self.data_queue, self.done_event, self.pin_memory,
                           maybe_device_id))
-                self.worker_manager_thread.daemon = True
-                self.worker_manager_thread.start()
+                self.pin_memory_thread.daemon = True
+                self.pin_memory_thread.start()
+
             else:
                 self.data_queue = self.worker_result_queue
 
@@ -109,8 +116,9 @@ class _MSDataLoaderIter(_DataLoaderIter):
                 w.daemon = True  # ensure that the worker exits on process exit
                 w.start()
 
-            _update_worker_pids(id(self), tuple(w.pid for w in self.workers))
-            _set_SIGCHLD_handler()
+            _utils.signal_handling._set_worker_pids(
+                id(self), tuple(w.pid for w in self.workers))
+            _utils.signal_handling._set_SIGCHLD_handler()
             self.worker_pids_set = True
 
             # prime the prefetch loop
@@ -122,8 +130,9 @@ class MSDataLoader(DataLoader):
     def __init__(
             self, args, dataset, batch_size=1, shuffle=False,
             sampler=None, batch_sampler=None,
-            collate_fn=default_collate, pin_memory=False, drop_last=False,
+            collate_fn=_utils.collate.default_collate, pin_memory=False, drop_last=False,
             timeout=0, worker_init_fn=None):
+
         super(MSDataLoader, self).__init__(
             dataset, batch_size=batch_size, shuffle=shuffle,
             sampler=sampler, batch_sampler=batch_sampler,

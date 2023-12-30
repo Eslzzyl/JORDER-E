@@ -98,7 +98,7 @@ class Trainer():
 
             timer_data.tic()
 
-        print(loss1_all/cnt)
+        print(loss1_all / cnt)
         print(loss2_all / cnt)
         print(loss3_all / cnt)
 
