@@ -1,1 +1,0 @@
-python -u main.py --data_test RainHeavyTest  --ext img --scale 2  --data_range 1-300/1-300 --pre_train ./pretrained_model/model_practical.pt --model JORDER_E --test_only --save_results --save JORDER_E_RainHeavy_test

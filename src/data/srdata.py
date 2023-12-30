@@ -43,7 +43,7 @@ class SRData(data.Dataset):
                 args.ext, list_hr, self._name_hrbin()
             )
             self.images_lr = [
-                self._check_and_load(args.ext, l, self._name_lrbin(s)) \
+                self._check_and_load(args.ext, l, self._name_lrbin(s))
                 for s, l in zip(self.scale, list_lr)
             ]
         else:
@@ -125,7 +125,8 @@ class SRData(data.Dataset):
     def _check_and_load(self, ext, l, f, verbose=True, load=True):
         if os.path.isfile(f) and ext.find('reset') < 0:
             if load:
-                if verbose: print('Loading {}...'.format(f))
+                if verbose:
+                    print('Loading {}...'.format(f))
                 with open(f, 'rb') as _f:
                     ret = pickle.load(_f)
                 return ret

@@ -4,6 +4,7 @@ import utility
 import torch
 from tqdm import tqdm
 
+
 class Trainer():
     def __init__(self, args, loader, my_model, my_loss, ckp):
         self.args = args
@@ -18,16 +19,18 @@ class Trainer():
         self.scheduler = utility.make_scheduler(args, self.optimizer)
 
         if self.args.load != '.':
+            optimizer_state_dict_path = os.path.join(ckp.dir, 'optimizer.pt')
             self.optimizer.load_state_dict(
-                torch.load(os.path.join(ckp.dir, 'optimizer.pt'))
-            )
-            for _ in range(len(ckp.log)): self.scheduler.step()
+                torch.load(optimizer_state_dict_path))
+            for _ in range(len(ckp.log)):
+                self.scheduler.step()
 
         self.error_last = 1e8
 
     def train(self):
         self.scheduler.step()
         self.loss.step()
+
         epoch = self.scheduler.last_epoch + 1
         lr = self.scheduler.get_lr()[0]
 
@@ -52,13 +55,15 @@ class Trainer():
 
             self.optimizer.zero_grad()
             sr, sr2, mask, level = self.model(lr, idx_scale)
- 
-            self.mask_loss = torch.nn.CrossEntropyLoss(reduce=False, size_average=True)
 
-            w1 = 10e-4 # * math.pow(0.5, int(epoch/2))
-            w2 = 10e-3 # * math.pow(0.5, int(epoch/2))
+            self.mask_loss = torch.nn.CrossEntropyLoss(
+                reduce=False, size_average=True)
 
-            per_pixel_detection_loss = self.mask_loss(mask, ((hr-lr)[:,0,:,:]>0).type(torch.cuda.LongTensor))
+            w1 = 10e-4  # * math.pow(0.5, int(epoch/2))
+            w2 = 10e-3  # * math.pow(0.5, int(epoch/2))
+
+            per_pixel_detection_loss = self.mask_loss(
+                mask, ((hr-lr)[:, 0, :, :] > 0).type(torch.cuda.LongTensor))
             per_pixel_detection_loss = per_pixel_detection_loss.sum()
 
             loss1 = self.loss(sr, hr) + self.loss(sr2, hr)
@@ -154,10 +159,12 @@ class Trainer():
 
     def prepare(self, *args):
         device = torch.device('cpu' if self.args.cpu else 'cuda')
+
         def _prepare(tensor):
-            if self.args.precision == 'half': tensor = tensor.half()
+            if self.args.precision == 'half':
+                tensor = tensor.half()
             return tensor.to(device)
-           
+
         return [_prepare(a) for a in args]
 
     def terminate(self):

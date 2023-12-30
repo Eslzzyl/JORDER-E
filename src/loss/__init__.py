@@ -4,12 +4,10 @@ from importlib import import_module
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
 import numpy as np
-
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
+
 
 class Loss(nn.modules.loss._Loss):
     def __init__(self, args, ckp):
@@ -41,7 +39,6 @@ class Loss(nn.modules.loss._Loss):
                 module = import_module('loss.joint')
                 loss_function = getattr(module, 'Joint')()
 
-           
             self.loss.append({
                 'type': loss_type,
                 'weight': float(weight),
@@ -62,11 +59,10 @@ class Loss(nn.modules.loss._Loss):
 
         device = torch.device('cpu' if args.cpu else 'cuda')
         self.loss_module.to(device)
-        if args.precision == 'half': self.loss_module.half()
+        if args.precision == 'half':
+            self.loss_module.half()
         if not args.cpu and args.n_GPUs > 1:
-            self.loss_module = nn.DataParallel(
-                self.loss_module, range(args.n_GPUs)
-            )
+            self.loss_module = nn.DataParallel(self.loss_module, range(args.n_GPUs))
 
         if args.load != '.': self.load(ckp.dir, cpu=args.cpu)
 
@@ -75,7 +71,7 @@ class Loss(nn.modules.loss._Loss):
         for i, l in enumerate(self.loss):
             if l['function'] is not None:
 
-                if str(lr)!='None':
+                if str(lr) != 'None':
                     loss = l['function'](sr, hr, lr, detect_map)
                     effective_loss = l['weight'] * loss
                     losses.append(effective_loss)
@@ -152,4 +148,3 @@ class Loss(nn.modules.loss._Loss):
         for l in self.loss_module:
             if hasattr(l, 'scheduler'):
                 for _ in range(len(self.log)): l.scheduler.step()
-
