@@ -28,7 +28,6 @@ class Trainer():
         self.error_last = 1e8
 
     def train(self):
-        self.scheduler.step()
         self.loss.step()
 
         epoch = self.scheduler.last_epoch + 1
@@ -97,6 +96,13 @@ class Trainer():
                     timer_data.release()))
 
             timer_data.tic()
+        '''
+        UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`.
+        In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.
+        Failure to do this will result in PyTorch skipping the first value of the learning rate schedule.
+        See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+        '''
+        self.scheduler.step()
 
         print(loss1_all / cnt)
         print(loss2_all / cnt)
