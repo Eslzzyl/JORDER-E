@@ -68,7 +68,7 @@ class _MSDataLoaderIter(_DataLoaderIter):
                 multiprocessing.Queue() for _ in range(self.num_workers)
             ]
             self.worker_queue_idx = 0
-          #  self.worker_result_queue = multiprocessing.SimpleQueue()
+            # self.worker_result_queue = multiprocessing.SimpleQueue()
             self.worker_result_queue = multiprocessing.Queue()
 
             self.batches_outstanding = 0
@@ -104,8 +104,7 @@ class _MSDataLoaderIter(_DataLoaderIter):
                     maybe_device_id = None
                 self.pin_memory_thread = threading.Thread(
                     target=_utils.pin_memory._pin_memory_loop,
-                    args=(self.worker_result_queue, self.data_queue, self.done_event, self.pin_memory,
-                          maybe_device_id))
+                    args=(self.worker_result_queue, self.data_queue, maybe_device_id, self.done_event))
                 self.pin_memory_thread.daemon = True
                 self.pin_memory_thread.start()
 
