@@ -104,6 +104,7 @@ class _MSDataLoaderIter(_DataLoaderIter):
                     maybe_device_id = None
                 self.pin_memory_thread = threading.Thread(
                     target=_utils.pin_memory._pin_memory_loop,
+                    # https://github.com/yulunzhang/RCAN/issues/30
                     args=(self.worker_result_queue, self.data_queue, maybe_device_id, self.done_event))
                 self.pin_memory_thread.daemon = True
                 self.pin_memory_thread.start()

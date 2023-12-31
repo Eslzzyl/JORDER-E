@@ -184,9 +184,9 @@ class SRData(data.Dataset):
                 lr = imageio.imread(f_lr)
             elif self.args.ext.find('sep') >= 0:
                 with open(f_hr, 'rb') as _f:
-                    hr = np.load(_f)[0]['image']
+                    hr = np.load(_f, allow_pickle=True)[0]['image']
                 with open(f_lr, 'rb') as _f:
-                    lr = np.load(_f)[0]['image']
+                    lr = np.load(_f, allow_pickle=True)[0]['image']
 
         return lr, hr, filename
 
