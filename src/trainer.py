@@ -55,8 +55,9 @@ class Trainer():
             self.optimizer.zero_grad()
             sr, sr2, mask, level = self.model(lr, idx_scale)
 
-            self.mask_loss = torch.nn.CrossEntropyLoss(
-                reduce=False, size_average=True)
+            # UserWarning: size_average and reduce args will be deprecated, please use reduction='none' instead.
+            # self.mask_loss = torch.nn.CrossEntropyLoss(reduce=False, size_average=True)
+            self.mask_loss = torch.nn.CrossEntropyLoss(reduction='none')
 
             w1 = 10e-4  # * math.pow(0.5, int(epoch/2))
             w2 = 10e-3  # * math.pow(0.5, int(epoch/2))
