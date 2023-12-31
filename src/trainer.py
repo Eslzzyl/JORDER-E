@@ -31,7 +31,7 @@ class Trainer():
         self.loss.step()
 
         epoch = self.scheduler.last_epoch + 1
-        lr = self.scheduler.get_lr()[0]
+        lr = self.scheduler.get_last_lr()[0]
 
         self.ckp.write_log(
             '[Epoch {}]\tLearning rate: {:.2e}'.format(epoch, Decimal(lr))
