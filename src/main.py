@@ -22,6 +22,6 @@ if checkpoint.ok:
 
     while not t.terminate():
         t.train()
-        # t.test()
+        t.test()
 
     checkpoint.done()

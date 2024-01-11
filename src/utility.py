@@ -8,7 +8,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import numpy as np
-import scipy.misc as misc
+import cv2
 
 import torch
 import torch.optim as optim
@@ -77,9 +77,11 @@ class checkpoint():
     def save(self, trainer, epoch, is_best=False):
         trainer.model.save(self.dir, epoch, is_best=is_best)
         trainer.loss.save(self.dir)
-        trainer.loss.plot_loss(self.dir, epoch)
+        # plot_loss 有谜之bug，会导致程序崩溃，暂时不用
+        # trainer.loss.plot_loss(self.dir, epoch)
 
-        self.plot_psnr(epoch)
+        # 同上，俩代码差不多，估计这个也有谜之bug
+        # self.plot_psnr(epoch)
         torch.save(self.log, os.path.join(self.dir, 'psnr_log.pt'))
         torch.save(
             trainer.optimizer.state_dict(),
@@ -123,9 +125,9 @@ class checkpoint():
         for v, p in zip(save_list, postfix):
             normalized = v[0].data.mul(255 / self.args.rgb_range)
             ndarr = normalized.byte().permute(1, 2, 0).cpu().numpy()
-            misc.imsave('{}{}.png'.format(filename, p), ndarr)
-            #import scipy
-            #scipy.misc.toimage(ndarr, cmin=0, cmax=255).save('{}{}.png'.format(filename, p))
+            # 此处引用了 scipy.misc.imsave，该 API 现已弃用。改用 OpenCV
+            # misc.imsave('{}{}.png'.format(filename, p), ndarr)
+            cv2.imwrite('{}{}.png'.format(filename, p), ndarr)
 
 def quantize(img, rgb_range):
     pixel_range = 255 / rgb_range
